@@ -3,12 +3,15 @@ package com.example.exercises;
 import com.example.exercises.exercises.Exercise;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.ssl.SslProperties.Bundles.Watch.File;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.env.Environment;
 
-import java.nio.file.Files;
+import java.io.BufferedWriter;
+
+import java.io.FileWriter;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.io.IOException;
@@ -16,6 +19,7 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+
 
 @SpringBootApplication
 @ComponentScan(basePackages = { "com.example.exercises.exercises" })
@@ -86,23 +90,54 @@ public class ExerciseApplication implements CommandLineRunner {
         }
     }
 
-    private void addNewExercise() {
-        // Determine the next exercise number
-        int nextExerciseNumber = exercises.size() + 1;
-        String newClassName = "com.example.exercises.exercises.Exercise" + nextExerciseNumber;
+private void addNewExercise() {
+    // Determine the next exercise number
+    int nextExerciseNumber = exercises.size() + 1;
+    String newClassName = "com.example.exercises.exercises.Exercise" + nextExerciseNumber;
 
-        // Add new exercise to properties file
-        try {
-            String entry = "exercises." + nextExerciseNumber + "=" + newClassName;
-            Files.write(Paths.get("src/main/resources/application.properties"), entry.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-            System.out.println("New exercise added: " + newClassName);
-            // Update the in-memory map
-            exercises.put(nextExerciseNumber, newClassName);
-        } catch (IOException e) {
-            System.err.println("Error adding new exercise: " + e.getMessage());
-            e.printStackTrace();
+    // Define the file path for the new .java file
+    String filePath = "src/main/java/com/example/exercises/exercises/Exercise" + nextExerciseNumber + ".java";
+
+    // Define the content for the new .java file
+    String classContent = "package com.example.exercises.exercises;\n\n" +
+        "public class Exercise" + nextExerciseNumber + " implements Exercise {\n" +
+        "    @Override\n" +
+        "    public void runExercise() {\n" +
+        "        // TODO: Implement the exercise logic here\n" +
+        "    }\n" +
+        "}\n";
+
+    // Create the .java file and write the class content
+    try {
+        java.io.File file = new java.io.File(filePath);
+        if (file.createNewFile()) {
+            try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(file))) {
+                fileWriter.write(classContent);
+                System.out.println("Java file created: " + filePath);
+            } catch (IOException e) {
+                System.err.println("Error writing to Java file: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("File already exists: " + filePath);
         }
+    } catch (IOException e) {
+        System.err.println("Error creating Java file: " + e.getMessage());
+        e.printStackTrace();
     }
+
+    // Add new exercise to properties file
+    try (BufferedWriter propertiesWriter = new BufferedWriter(new FileWriter("src/main/resources/application.properties", true))) {
+        propertiesWriter.write("exercises." + nextExerciseNumber + "=" + newClassName);
+        propertiesWriter.newLine(); // Asegura que cada entrada esté en una línea nueva
+        System.out.println("New exercise added: " + newClassName);
+        // Update the in-memory map
+        exercises.put(nextExerciseNumber, newClassName);
+    } catch (IOException e) {
+        System.err.println("Error adding new exercise to properties file: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
 
     private void loadExercises() {
         // Carga las propiedades desde application.properties
