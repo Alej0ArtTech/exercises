@@ -128,8 +128,9 @@ private void addNewExercise() {
 
     // Add new exercise to properties file
     try (BufferedWriter propertiesWriter = new BufferedWriter(new FileWriter("src/main/resources/application.properties", true))) {
+        propertiesWriter.newLine();
         propertiesWriter.write("exercises." + nextExerciseNumber + "=" + newClassName);
-        propertiesWriter.newLine(); // Asegura que cada entrada esté en una línea nueva
+         // Asegura que cada entrada esté en una línea nueva
         System.out.println("New exercise added: " + newClassName);
         // Update the in-memory map
         exercises.put(nextExerciseNumber, newClassName);
