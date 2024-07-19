@@ -62,9 +62,9 @@ public class ExerciseApplication implements CommandLineRunner {
             e.printStackTrace();
         }
     }
-
     private void runExerciseMenu(Scanner scanner) {
         System.out.println("Select exercise number to run:");
+        System.out.println("Current exercises: " + exercises); // Verifica el contenido
         for (Integer number : exercises.keySet()) {
             System.out.println(number + " - " + exercises.get(number));
         }
@@ -116,5 +116,7 @@ public class ExerciseApplication implements CommandLineRunner {
             exercises.put(index, className);
             index++;
         }
+        System.out.println("Loaded exercises: " + exercises); // Depuración
     }
 }
+
