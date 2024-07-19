@@ -1,17 +1,30 @@
 package com.example.exercises;
 
+import com.example.exercises.exercises.Exercise;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.env.Environment;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
 @SpringBootApplication
-
+@ComponentScan(basePackages = { "com.example.exercises.exercises" })
 public class ExerciseApplication implements CommandLineRunner {
+
+    @Autowired
+    private Environment env; // Inyecta el entorno para acceder a las propiedades
+
+    private Map<Integer, String> exercises = new HashMap<>();
 
     public static void main(String[] args) {
         SpringApplication.run(ExerciseApplication.class, args);
@@ -19,22 +32,89 @@ public class ExerciseApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        Scanner scanner = new Scanner(System.in);
+        loadExercises();
+        try (Scanner scanner = new Scanner(System.in)) {
+            while (true) {
+                System.out.println("Select an option:");
+                System.out.println("0 - Run an exercise");
+                System.out.println("1 - Add a new exercise");
+                System.out.println("2 - Exit");
+
+                int option = scanner.nextInt();
+                scanner.nextLine();  // Limpiar el buffer de entrada
+
+                switch (option) {
+                    case 0:
+                        runExerciseMenu(scanner);
+                        break;
+                    case 1:
+                        addNewExercise();
+                        break;
+                    case 2:
+                        System.out.println("Exiting...");
+                        return; // Salir del método run, lo que terminará la aplicación
+                    default:
+                        System.out.println("Invalid option. Please try again.");
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("An error occurred: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void runExerciseMenu(Scanner scanner) {
         System.out.println("Select exercise number to run:");
+        for (Integer number : exercises.keySet()) {
+            System.out.println(number + " - " + exercises.get(number));
+        }
         int exerciseNumber = scanner.nextInt();
-
-        // Mapa de ejercicios
-        Map<Integer, Exercise> exercises = new HashMap<>();
-        exercises.put(1, new Exercise1());  // Ejercicio 1
-        exercises.put(2, new Exercise2());  // Ejercicio 2
-        // Agrega más ejercicios aquí
-
-        // Validar el número de ejercicio seleccionado
-        Exercise exercise = exercises.get(exerciseNumber);
-        if (exercise != null) {
-            exercise.runExercise();
+        scanner.nextLine();  // Limpiar el buffer de entrada
+        String className = exercises.get(exerciseNumber);
+        if (className != null) {
+            try {
+                Class<?> clazz = Class.forName(className);
+                Constructor<?> constructor = clazz.getConstructor();
+                Exercise exercise = (Exercise) constructor.newInstance();
+                exercise.runExercise();
+            } catch (Exception e) {
+                System.err.println("Error running exercise: " + e.getMessage());
+                e.printStackTrace();
+            }
         } else {
             System.out.println("Invalid exercise number.");
+        }
+    }
+
+    private void addNewExercise() {
+        // Determine the next exercise number
+        int nextExerciseNumber = exercises.size() + 1;
+        String newClassName = "com.example.exercises.exercises.Exercise" + nextExerciseNumber;
+
+        // Add new exercise to properties file
+        try {
+            String entry = "exercises." + nextExerciseNumber + "=" + newClassName;
+            Files.write(Paths.get("src/main/resources/application.properties"), entry.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            System.out.println("New exercise added: " + newClassName);
+            // Update the in-memory map
+            exercises.put(nextExerciseNumber, newClassName);
+        } catch (IOException e) {
+            System.err.println("Error adding new exercise: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void loadExercises() {
+        // Carga las propiedades desde application.properties
+        int index = 1;
+        while (true) {
+            String key = "exercises." + index;
+            String className = env.getProperty(key);
+            if (className == null) {
+                break;
+            }
+            exercises.put(index, className);
+            index++;
         }
     }
 }
