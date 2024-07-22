@@ -3,7 +3,6 @@ package com.example.exercises;
 import com.example.exercises.exercises.Exercise;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.ssl.SslProperties.Bundles.Watch.File;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -12,8 +11,6 @@ import org.springframework.core.env.Environment;
 import java.io.BufferedWriter;
 
 import java.io.FileWriter;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
