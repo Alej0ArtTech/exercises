@@ -37,26 +37,8 @@ Select option `2` to exit the application.
 ## Project Structure
 
 The project has the following structure:
+![image](https://github.com/user-attachments/assets/08e8f75b-3ad3-4d7a-8618-11fbd666df90)
 
-exercise-application
-├── src
-│ ├── main
-│ │ ├── java
-│ │ │ └── com
-│ │ │ └── example
-│ │ │ └── exercises
-│ │ │ ├── ExerciseApplication.java
-│ │ │ ├── exercises
-│ │ │ │ ├── Exercise.java
-│ │ │ │ └── (exercise classes)
-│ │ └── resources
-│ │ └── application.properties
-├── build
-├── .gitignore
-├── gradlew
-├── gradlew.bat
-├── build.gradle
-└── README.md
 
 ## License
 
