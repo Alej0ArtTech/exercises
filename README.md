@@ -37,10 +37,8 @@ Select option `2` to exit the application.
 ## Project Structure
 
 The project has the following structure:
-<p align="left">
-![image](https://github.com/user-attachments/assets/08e8f75b-3ad3-4d7a-8618-11fbd666df90)
-</p>
 
+![image](https://github.com/user-attachments/assets/08e8f75b-3ad3-4d7a-8618-11fbd666df90)
 
 ## License
 
